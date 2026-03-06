@@ -15,7 +15,8 @@ const style = `
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
   body { background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
-  .app { max-width:780px; margin:0 auto; padding:0 0 80px; min-height:100vh; }
+ .app { max-width:780px; margin:0 auto; padding:0 0 80px; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+.app > * { width:100%; max-width:780px; }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
@@ -23,7 +24,7 @@ const style = `
   .login-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px 32px; width:100%; max-width:360px; text-align:center; }
   .login-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px; }
   .login-desc { font-size:13px; color:var(--text2); margin-bottom:28px; line-height:1.6; }
-  #google-signin-btn { display:flex; justify-content:center; margin-bottom:12px; min-height:44px; }
+  #google-signin-btn { display:flex; justify-content:center; margin-bottom:12px; min-height:44px; min-width:280px; overflow:visible; }
   .login-note { font-size:11px; color:var(--text3); margin-top:16px; line-height:1.5; }
 
   .header { position:sticky; top:0; z-index:100; background:rgba(15,15,19,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:16px 20px 0; }
