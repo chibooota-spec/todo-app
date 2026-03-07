@@ -14,9 +14,9 @@ const style = `
     --text:#e8e8f0; --text2:#9090a8; --text3:#5a5a72;
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
-  body { background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
- .app { max-width:780px; margin:0 auto; padding:0 0 80px; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
-.app > * { width:100%; max-width:780px; }
+  html, body { width:100%; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
+  body { display:flex; justify-content:center; }
+  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
@@ -237,11 +237,14 @@ export default function App() {
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
+          use_fedcm_for_prompt: false,
         });
         window.google.accounts.id.renderButton(
           document.getElementById("google-signin-btn"),
           { theme:"outline", size:"large", locale:"ja", width:280 }
         );
+        // スマホ向けにOne Tapも表示
+        window.google.accounts.id.prompt();
       }
     }, 200);
     return () => clearInterval(interval);
