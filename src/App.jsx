@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ===== CONFIG =====
-const GAS_URL ="https://script.google.com/macros/s/AKfycbzhULQPrWnp1VS-Wv4HabZ-z6qIbDMl7XV2Ynzt1zPG5cfWG_lH5WKNhfMd4j1aKWinJA/exec";
+const GAS_URL ="https://script.google.com/macros/library/d/180t_NIwfMUg3CgqPgD6lirwIFnC6CGaGREXtR8mjitFqn1m8yXF-M93x/9";
 const GOOGLE_CLIENT_ID = "331300779334-m2ih2g0hg2epa9rpiu6sa1f7buje20v5.apps.googleusercontent.com";
 
 // ===== STYLES =====
