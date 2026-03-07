@@ -26,6 +26,9 @@ const style = `
   .login-desc { font-size:13px; color:var(--text2); margin-bottom:28px; line-height:1.6; }
   #google-signin-btn { display:flex; justify-content:center; margin-bottom:12px; min-height:44px; min-width:280px; overflow:visible; }
   .login-note { font-size:11px; color:var(--text3); margin-top:16px; line-height:1.5; }
+  .google-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px 20px; background:#fff; border:1px solid #dadce0; border-radius:8px; font-size:15px; font-weight:500; color:#3c4043; cursor:pointer; transition:box-shadow 0.2s; font-family:'Noto Sans JP',sans-serif; }
+  .google-btn:hover { box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .google-btn svg { flex-shrink:0; }
 
   .header { position:sticky; top:0; z-index:100; background:rgba(15,15,19,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:16px 20px 0; }
   .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
@@ -230,7 +233,7 @@ export default function App() {
   useEffect(()=>{
     if(authLoading || user) return;
     const interval = setInterval(()=>{
-      if(window.google && document.getElementById("google-signin-btn")) {
+      if(window.google) {
         clearInterval(interval);
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -239,16 +242,16 @@ export default function App() {
           cancel_on_tap_outside: true,
           use_fedcm_for_prompt: false,
         });
-        window.google.accounts.id.renderButton(
-          document.getElementById("google-signin-btn"),
-          { theme:"outline", size:"large", locale:"ja", width:280 }
-        );
-        // スマホ向けにOne Tapも表示
-        window.google.accounts.id.prompt();
       }
     }, 200);
     return () => clearInterval(interval);
   },[authLoading, user]);
+
+  function handleGoogleLogin() {
+    if(window.google) {
+      window.google.accounts.id.prompt();
+    }
+  }
 
   // ---- ログイン成功コールバック ----
   function handleCredentialResponse(response) {
@@ -394,7 +397,11 @@ export default function App() {
               Googleアカウントでログインすると、<br/>
               どの端末からでも自分のタスクにアクセスできます。
             </div>
-            <div id="google-signin-btn"></div>
+            <div id="google-signin-btn" style={{marginBottom:"8px"}}></div>
+            <button className="google-btn" onClick={handleGoogleLogin}>
+              <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+              Googleでログイン
+            </button>
             <div className="login-note">
               タスクデータはあなた専用のスプレッドシートに保存されます。
             </div>
