@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ===== CONFIG =====
-const GAS_URL ="https://script.google.com/macros/library/d/180t_NIwfMUg3CgqPgD6lirwIFnC6CGaGREXtR8mjitFqn1m8yXF-M93x/6";
+const GAS_URL ="https://script.google.com/macros/s/AKfycbxR7Su8KWIlzSY62RKC5_wVni0wcbWtJxrC-n3-07o2j86c5Gfwa4totm5Jd92yMQAPEA/exec";
 const GOOGLE_CLIENT_ID = "331300779334-m2ih2g0hg2epa9rpiu6sa1f7buje20v5.apps.googleusercontent.com";
 
 // ===== STYLES =====
@@ -309,6 +309,15 @@ export default function App() {
 
   // ---- チェック操作 ----
   async function handleCheck1(task) {
+    // 二次期限がない場合はそのまま完了済みへ
+    if(!task.deadline2) {
+      const completedAt=new Date().toISOString();
+      const updated={...task,status:"完了",completedAt};
+      setTasks(p=>p.map(t=>t.id===task.id?updated:t));
+      try{ await apiCall("completeTask",{id:task.id,completedAt},idToken); }catch{ showToast("保存エラー"); }
+      showToast("🎉 完了済みに移動しました");
+      return;
+    }
     const updated={...task,status:"一次完了"};
     setTasks(p=>p.map(t=>t.id===task.id?updated:t));
     try{ await apiCall("updateTask",{task:updated},idToken); }catch{ showToast("保存エラー"); }
