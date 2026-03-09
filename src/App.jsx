@@ -14,9 +14,9 @@ const style = `
     --text:#e8e8f0; --text2:#9090a8; --text3:#5a5a72;
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
-  html, body { width:100%; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
+  html, body { width:100%; max-width:100vw; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
   body { display:flex; justify-content:center; }
-  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; }
+  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; overflow-x:hidden; }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
@@ -366,9 +366,12 @@ export default function App() {
 
   async function saveTask(data) {
     const isNew=!data.id;
+    // 日付と時間を結合
+    const d1 = data.deadline1 && data.deadline1Time ? data.deadline1+"T"+data.deadline1Time : data.deadline1||"";
+    const d2 = data.deadline2 && data.deadline2Time ? data.deadline2+"T"+data.deadline2Time : data.deadline2||"";
     const task=isNew
-      ? {...data,id:Date.now().toString(),status:"未対応",completedAt:"",month:activeMonth}
-      : {...data};
+      ? {...data,id:Date.now().toString(),status:"未対応",completedAt:"",month:activeMonth,deadline1:d1,deadline2:d2}
+      : {...data,deadline1:d1,deadline2:d2};
     setTasks(p=>isNew?[...p,task]:p.map(t=>t.id===task.id?task:t));
     setShowModal(false);
     showToast(isNew?"✨ タスクを追加しました":"✏️ 更新しました");
@@ -540,11 +543,11 @@ function TaskCard({task, onCheck1, onUndo1, onCheck2, onEdit, onDelete, isDone})
       <div className="task-body">
         <div className="task-name">{task.name}</div>
         <div className="task-meta">
-          {deadline1&&<span className={`deadline ${d1cls}`}>一次 {formatDate(deadline1)}</span>}
+          {deadline1&&<span className={`deadline ${d1cls}`}>一次 {formatDate(deadline1.substring(0,10))}{deadline1.length>10&&` ${deadline1.substring(11,16)}`}</span>}
           {deadline2&&(
             <span className={`deadline ${d2cls}`}>
               {isFirstDone&&!isCompleted&&<span className="active-mark">▶ </span>}
-              二次 {formatDate(deadline2)}
+              二次 {formatDate(deadline2.substring(0,10))}{deadline2.length>10&&` ${deadline2.substring(11,16)}`}
             </span>
           )}
         </div>
@@ -563,12 +566,14 @@ function TaskCard({task, onCheck1, onUndo1, onCheck2, onEdit, onDelete, isDone})
 
 function TaskModal({task, onSave, onClose}) {
   const [name,setName]=useState(task?.name||"");
-  const [d1,setD1]=useState(task?.deadline1||"");
-  const [d2,setD2]=useState(task?.deadline2||"");
+  const [d1,setD1]=useState((task?.deadline1||"").substring(0,10));
+  const [d1t,setD1t]=useState(task?.deadline1?.length>10 ? task.deadline1.substring(11,16) : "");
+  const [d2,setD2]=useState((task?.deadline2||"").substring(0,10));
+  const [d2t,setD2t]=useState(task?.deadline2?.length>10 ? task.deadline2.substring(11,16) : "");
   const [note,setNote]=useState(task?.note||"");
   function handleSave(){
     if(!name.trim()){alert("タスク名を入力してください");return;}
-    onSave({...(task||{}),name:name.trim(),deadline1:d1,deadline2:d2,note:note.trim()});
+    onSave({...(task||{}),name:name.trim(),deadline1:d1,deadline1Time:d1t,deadline2:d2,deadline2Time:d2t,note:note.trim()});
   }
   return (
     <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
@@ -582,9 +587,17 @@ function TaskModal({task, onSave, onClose}) {
           <input className="form-input" value={name} onChange={e=>setName(e.target.value)} placeholder="タスク名を入力..." autoFocus/>
         </div>
         <div className="form-group">
+          <label className="form-label">一次期限</label>
           <div className="form-row">
-            <div><label className="form-label">一次期限</label><input type="date" className="form-input" value={d1} onChange={e=>setD1(e.target.value)}/></div>
-            <div><label className="form-label">二次期限</label><input type="date" className="form-input" value={d2} onChange={e=>setD2(e.target.value)}/></div>
+            <input type="date" className="form-input" value={d1} onChange={e=>setD1(e.target.value)}/>
+            <input type="time" className="form-input" value={d1t} onChange={e=>setD1t(e.target.value)} disabled={!d1} placeholder="時間"/>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">二次期限</label>
+          <div className="form-row">
+            <input type="date" className="form-input" value={d2} onChange={e=>setD2(e.target.value)}/>
+            <input type="time" className="form-input" value={d2t} onChange={e=>setD2t(e.target.value)} disabled={!d2} placeholder="時間"/>
           </div>
         </div>
         <div className="form-group">
