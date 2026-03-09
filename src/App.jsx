@@ -360,9 +360,9 @@ export default function App() {
       ? {...data,id:Date.now().toString(),status:"未対応",completedAt:"",month:activeMonth}
       : {...data};
     setTasks(p=>isNew?[...p,task]:p.map(t=>t.id===task.id?task:t));
-    try{ await apiCall(isNew?"addTask":"updateTask",{task},idToken); }catch{ showToast("保存エラー"); }
     setShowModal(false);
     showToast(isNew?"✨ タスクを追加しました":"✏️ 更新しました");
+    try{ await apiCall(isNew?"addTask":"updateTask",{task},idToken); }catch{ showToast("保存エラー"); }
   }
 
   // ---- スワイプ ----
