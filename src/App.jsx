@@ -216,8 +216,27 @@ export default function App() {
   const dragX    = useRef(0);
   const scrollX  = useRef(0);
 
-  // ---- 起動時にlocalStorageからユーザー情報を復元 ----
+  // ---- 起動時にlocalStorageからユーザー情報を復元 & リダイレクト後のトークン処理 ----
   useEffect(()=>{
+    // OAuthリダイレクト後のハッシュからid_tokenを取得
+    const hash = window.location.hash;
+    if(hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const idTokenFromHash = params.get("id_token");
+      if(idTokenFromHash) {
+        try {
+          const payload = JSON.parse(atob(idTokenFromHash.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+          const userInfo = { email: payload.email, name: payload.email, picture: payload.picture || null };
+          setUser(userInfo);
+          setIdToken(idTokenFromHash);
+          localStorage.setItem("todo_user", JSON.stringify(userInfo));
+          localStorage.setItem("todo_token", idTokenFromHash);
+          window.history.replaceState(null, "", window.location.pathname);
+          setAuthLoading(false);
+          return;
+        } catch(e) {}
+      }
+    }
     const saved = localStorage.getItem("todo_user");
     const savedToken = localStorage.getItem("todo_token");
     if(saved && savedToken) {
@@ -248,9 +267,15 @@ export default function App() {
   },[authLoading, user]);
 
   function handleGoogleLogin() {
-    if(window.google) {
-      window.google.accounts.id.prompt();
-    }
+    const oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+    const params = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: window.location.origin,
+      response_type: "token id_token",
+      scope: "openid email profile",
+      nonce: Math.random().toString(36).substring(2),
+    });
+    window.location.href = oauth2Endpoint + "?" + params.toString();
   }
 
   // ---- ログイン成功コールバック ----
