@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
+// viewportメタタグを強制設定
+if (typeof document !== "undefined") {
+  let vp = document.querySelector("meta[name=viewport]");
+  if (!vp) { vp = document.createElement("meta"); vp.name = "viewport"; document.head.appendChild(vp); }
+  vp.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0";
+}
+
 // ===== CONFIG =====
 const GAS_URL ="https://script.google.com/macros/s/AKfycbxR7Su8KWIlzSY62RKC5_wVni0wcbWtJxrC-n3-07o2j86c5Gfwa4totm5Jd92yMQAPEA/exec";
 const GOOGLE_CLIENT_ID = "331300779334-m2ih2g0hg2epa9rpiu6sa1f7buje20v5.apps.googleusercontent.com";
@@ -14,9 +21,9 @@ const style = `
     --text:#e8e8f0; --text2:#9090a8; --text3:#5a5a72;
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
-  html, body { width:100%; max-width:100vw; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; overflow-x:hidden; }
-  body { display:flex; justify-content:center; }
-  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; overflow-x:hidden; }
+  html { overflow-x:hidden; }
+  body { width:100%; max-width:100%; overflow-x:hidden; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; display:flex; justify-content:center; }
+  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; overflow-x:hidden; box-sizing:border-box; }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
