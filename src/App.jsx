@@ -21,9 +21,8 @@ const style = `
     --text:#e8e8f0; --text2:#9090a8; --text3:#5a5a72;
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
-  html { overflow-x:hidden; }
-  body { width:100%; max-width:100%; overflow-x:hidden; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; display:flex; justify-content:center; }
-  .app { width:100%; max-width:780px; padding:0 0 80px; min-height:100vh; overflow-x:hidden; box-sizing:border-box; }
+  html, body { width:100%; overflow-x:hidden; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; }
+  .app { width:100%; max-width:780px; margin:0 auto; padding:0 0 80px; min-height:100vh; box-sizing:border-box; }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
@@ -37,7 +36,7 @@ const style = `
   .google-btn:hover { box-shadow:0 2px 8px rgba(0,0,0,0.2); }
   .google-btn svg { flex-shrink:0; }
 
-  .header { position:sticky; top:0; z-index:100; background:rgba(15,15,19,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:16px 20px 0; }
+  .header { position:sticky; top:0; z-index:100; background:rgba(15,15,19,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:16px 20px 0; width:100%; box-sizing:border-box; overflow:hidden; }
   .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
   .logo { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--accent); letter-spacing:-0.5px; }
   .logo span { color:var(--accent2); }
@@ -102,7 +101,7 @@ const style = `
   .active-mark { font-size:9px; animation:blink 1.4s ease infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
   .task-note { font-size:12px; color:var(--text2); word-break:break-all; }
-  .task-note a { color:var(--accent); text-decoration:none; }
+  .task-note a { color:var(--accent); text-decoration:none; word-break:break-all; overflow-wrap:break-word; max-width:100%; display:inline-block; }
   .task-note a:hover { text-decoration:underline; }
   .task-done-at { font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; margin-top:4px; }
   .task-actions { display:flex; flex-direction:column; gap:4px; }
