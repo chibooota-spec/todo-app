@@ -14,15 +14,52 @@ const GOOGLE_CLIENT_ID = "331300779334-m2ih2g0hg2epa9rpiu6sa1f7buje20v5.apps.goo
 // ===== STYLES =====
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
-  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  
+  /* 全要素にボックスモデルを適用（Androidの幅計算ミス防止） */
+  *, *::before, *::after { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
   :root {
     --bg:#0f0f13; --surface:#1a1a22; --surface2:#22222e; --border:#2e2e3e;
     --accent:#7c6af7; --accent2:#f76ab0; --accent3:#6af7c8;
     --text:#e8e8f0; --text2:#9090a8; --text3:#5a5a72;
     --danger:#f76a6a; --warn:#f7c06a; --radius:12px; --radius-sm:8px;
   }
-  html, body { width:100%; overflow-x:hidden; background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:400; min-height:100vh; }
-  .app { width:100%; max-width:780px; margin:0 auto; padding:0 0 80px; min-height:100vh; box-sizing:border-box; }
+
+  html, body { 
+    width: 100%; 
+    margin: 0;
+    padding: 0;
+    /* Android Chromeでの文字サイズ設定によるレイアウト膨張を防止 */
+    -webkit-text-size-adjust: 100%; 
+    
+    background: var(--bg); 
+    color: var(--text); 
+    font-family: 'Noto Sans JP', sans-serif; 
+    font-weight: 400; 
+    min-height: 100vh; 
+    /* bodyのはみ出し制御はAndroidで位置ずれの原因になるため相対配置のみに */
+    position: relative;
+    overflow-x: visible; 
+  }
+
+  .app { 
+    width: 100%; 
+    max-width: 780px; 
+    margin: 0 auto; 
+    padding: 0 0 80px; 
+    min-height: 100vh; 
+    box-sizing: border-box; 
+    
+    /* 左右の「切れ」を防ぐため、ここにはみ出し制限を集約 */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
 
   .login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:32px; }
   .login-logo { font-family:'DM Mono',monospace; font-size:32px; font-weight:500; color:var(--accent); letter-spacing:-1px; }
@@ -91,12 +128,12 @@ const style = `
   .task-card.completed .task-name { text-decoration:line-through; color:var(--text3); }
   .task-meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
   .deadline { display:inline-flex; align-items:center; gap:3px; font-family:'DM Mono',monospace; font-size:11px; padding:2px 7px; border-radius:4px; font-weight:500; }
-  .dl-1-todo    { background:rgba(124,106,247,0.15); color:var(--accent); }
-  .dl-1-done    { background:rgba(60,60,80,0.3); color:var(--text3); text-decoration:line-through; }
+  .dl-1-todo      { background:rgba(124,106,247,0.15); color:var(--accent); }
+  .dl-1-done      { background:rgba(60,60,80,0.3); color:var(--text3); text-decoration:line-through; }
   .dl-1-overdue { background:rgba(247,106,106,0.15); color:var(--danger); }
-  .dl-2-base    { background:rgba(90,90,114,0.25); color:var(--text2); }
-  .dl-2-active  { background:rgba(247,192,106,0.15); color:var(--warn); }
-  .dl-2-warn    { background:rgba(247,160,106,0.2); color:#f7a06a; }
+  .dl-2-base      { background:rgba(90,90,114,0.25); color:var(--text2); }
+  .dl-2-active    { background:rgba(247,192,106,0.15); color:var(--warn); }
+  .dl-2-warn      { background:rgba(247,160,106,0.2); color:#f7a06a; }
   .dl-2-overdue { background:rgba(247,106,106,0.15); color:var(--danger); }
   .active-mark { font-size:9px; animation:blink 1.4s ease infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
@@ -178,7 +215,7 @@ function getSortScore(task) {
   if(diff===null) return 3+penalty;
   if(diff<0)      return 0+penalty+tb;
   if(diff<=3)     return 1+penalty+tb;
-  return               2+penalty+tb;
+  return                2+penalty+tb;
 }
 
 function getSectionId(score) {
@@ -325,7 +362,6 @@ export default function App() {
 
   // ---- チェック操作 ----
   async function handleCheck1(task) {
-    // 二次期限がない場合はそのまま完了済みへ
     if(!task.deadline2) {
       const completedAt=new Date().toISOString();
       const updated={...task,status:"完了",completedAt};
@@ -372,7 +408,6 @@ export default function App() {
 
   async function saveTask(data) {
     const isNew=!data.id;
-    // 日付と時間を結合
     const d1 = data.deadline1 && data.deadline1Time ? data.deadline1+"T"+data.deadline1Time : data.deadline1||"";
     const d2 = data.deadline2 && data.deadline2Time ? data.deadline2+"T"+data.deadline2Time : data.deadline2||"";
     const task=isNew
@@ -577,42 +612,50 @@ function TaskModal({task, onSave, onClose}) {
   const [d2,setD2]=useState((task?.deadline2||"").substring(0,10));
   const [d2t,setD2t]=useState(task?.deadline2?.length>10 ? task.deadline2.substring(11,16) : "");
   const [note,setNote]=useState(task?.note||"");
+
   function handleSave(){
-    if(!name.trim()){alert("タスク名を入力してください");return;}
-    onSave({...(task||{}),name:name.trim(),deadline1:d1,deadline1Time:d1t,deadline2:d2,deadline2Time:d2t,note:note.trim()});
+    if(!name.trim()) return alert("件名を入力してください");
+    onSave({ id:task?.id, name, deadline1:d1, deadline1Time:d1t, deadline2:d2, deadline2Time:d2t, note });
   }
+
   return (
-    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div className="modal">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
         <div className="modal-title">
-          <span>{task?"タスクを編集":"新規タスク"}</span>
-          <button className="btn-icon" onClick={onClose}>✕</button>
+          {task?"タスクを編集":"新しいタスク"}
+          <button className="btn-sm" onClick={onClose} style={{border:"none"}}>✕</button>
         </div>
         <div className="form-group">
-          <label className="form-label">タスク名 *</label>
-          <input className="form-input" value={name} onChange={e=>setName(e.target.value)} placeholder="タスク名を入力..." autoFocus/>
+          <label className="form-label">件名</label>
+          <input className="form-input" value={name} onChange={e=>setName(e.target.value)} placeholder="何をする？" autoFocus/>
         </div>
-        <div className="form-group">
-          <label className="form-label">一次期限</label>
-          <div className="form-row">
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">一次期限（日付）</label>
             <input type="date" className="form-input" value={d1} onChange={e=>setD1(e.target.value)}/>
-            <input type="time" className="form-input" value={d1t} onChange={e=>setD1t(e.target.value)} disabled={!d1} placeholder="時間"/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">一次期限（時間）</label>
+            <input type="time" className="form-input" value={d1t} onChange={e=>setD1t(e.target.value)}/>
           </div>
         </div>
-        <div className="form-group">
-          <label className="form-label">二次期限</label>
-          <div className="form-row">
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">二次期限（日付）</label>
             <input type="date" className="form-input" value={d2} onChange={e=>setD2(e.target.value)}/>
-            <input type="time" className="form-input" value={d2t} onChange={e=>setD2t(e.target.value)} disabled={!d2} placeholder="時間"/>
+          </div>
+          <div className="form-group">
+            <label className="form-label">二次期限（時間）</label>
+            <input type="time" className="form-input" value={d2t} onChange={e=>setD2t(e.target.value)}/>
           </div>
         </div>
         <div className="form-group">
-          <label className="form-label">備考（URLも入力可）</label>
-          <input className="form-input" value={note} onChange={e=>setNote(e.target.value)} placeholder="メモやURLを入力..."/>
+          <label className="form-label">メモ / URL</label>
+          <textarea className="form-input" value={note} onChange={e=>setNote(e.target.value)} rows="3" placeholder="詳細や参考URLなど"/>
         </div>
         <div className="form-actions">
           <button className="btn btn-cancel" onClick={onClose}>キャンセル</button>
-          <button className="btn btn-primary" onClick={handleSave}>{task?"更新":"追加"}</button>
+          <button className="btn btn-primary" onClick={handleSave}>保存する</button>
         </div>
       </div>
     </div>
